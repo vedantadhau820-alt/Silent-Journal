@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Silent Journal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* =========================================
+RESET
+========================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#050505;
+    color:#f5f5f5;
+    overflow-x:hidden;
+}
+
+/* =========================================
+BACKGROUND
+========================================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+    background:
+    linear-gradient(to bottom,
+    rgba(5,5,5,0.82),
+    rgba(5,5,5,0.96)),
+    url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1974&auto=format&fit=crop');
+
+    background-size:cover;
+    background-position:center;
+    z-index:-2;
+}
+
+.glow{
+    position:fixed;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(157,130,84,0.12),transparent 70%);
+    top:-150px;
+    right:-150px;
+    filter:blur(40px);
+    z-index:-1;
+}
+
+/* =========================================
+NAVBAR
+========================================= */
+
+nav{
+    position:fixed;
+    top:0;
+    width:100%;
+    padding:24px 7%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    backdrop-filter:blur(10px);
+    background:rgba(5,5,5,0.45);
+    z-index:100;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+}
+
+.logo{
+    letter-spacing:4px;
+    font-size:0.9rem;
+    font-weight:500;
+}
+
+.tag{
+    color:#8c8c8c;
+    font-size:0.65rem;
+    letter-spacing:2px;
+}
+
+/* =========================================
+COMMON
+========================================= */
+
+.page{
+    min-height:100vh;
+    padding:120px 7% 60px;
+}
+
+.hidden{
+    display:none;
+}
+
+.section-title{
+    font-size:3rem;
+    font-weight:500;
+    line-height:1;
+}
+
+.section-sub{
+    margin-top:18px;
+    color:#8f8f8f;
+    max-width:500px;
+    line-height:1.9;
+    font-size:0.8rem;
+}
+
+/* =========================================
+ADD BUTTON
+========================================= */
+
+.add-btn{
+    position:fixed;
+    bottom:35px;
+    right:35px;
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    border:none;
+    background:#f5f5f5;
+    color:black;
+    font-size:2rem;
+    cursor:pointer;
+    transition:0.4s;
+    z-index:100;
+}
+
+.add-btn:hover{
+    transform:translateY(-4px) scale(1.04);
+}
+
+/* =========================================
+JOURNAL LIST
+========================================= */
+
+.journal-grid{
+    margin-top:60px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:22px;
+}
+
+.journal-card{
+    background:rgba(15,15,15,0.75);
+    border:1px solid rgba(255,255,255,0.05);
+    padding:28px;
+    transition:0.4s;
+    backdrop-filter:blur(10px);
+}
+
+.journal-card:hover{
+    transform:translateY(-5px);
+    border-color:rgba(157,130,84,0.3);
+}
+
+.card-date{
+    color:#9d8254;
+    font-size:0.65rem;
+    letter-spacing:2px;
+    margin-bottom:14px;
+}
+
+.journal-card h3{
+    font-size:1.3rem;
+    font-weight:500;
+    margin-bottom:14px;
+}
+
+.journal-card p{
+    color:#929292;
+    line-height:1.9;
+    font-size:0.8rem;
+}
+
+/* =========================================
+EDITOR PAGE
+========================================= */
+
+.editor-container{
+    max-width:900px;
+    margin:auto;
+}
+
+.back-btn{
+    background:none;
+    border:none;
+    color:#9d8254;
+    letter-spacing:2px;
+    cursor:pointer;
+    margin-bottom:50px;
+    font-size:0.7rem;
+}
+
+.input-title{
+    width:100%;
+    background:none;
+    border:none;
+    outline:none;
+    color:white;
+    font-size:3rem;
+    font-family:'Poppins',sans-serif;
+    font-weight:500;
+    margin-bottom:35px;
+}
+
+.input-title::placeholder{
+    color:#5f5f5f;
+}
+
+textarea{
+    width:100%;
+    min-height:420px;
+    resize:none;
+    background:rgba(10,10,10,0.7);
+    border:1px solid rgba(255,255,255,0.06);
+    padding:30px;
+    color:#d5d5d5;
+    font-family:'Poppins',sans-serif;
+    line-height:2;
+    font-size:0.9rem;
+    outline:none;
+    backdrop-filter:blur(10px);
+}
+
+textarea::placeholder{
+    color:#606060;
+}
+
+.save-btn{
+    margin-top:30px;
+    padding:14px 34px;
+    border:none;
+    background:#f5f5f5;
+    color:black;
+    letter-spacing:2px;
+    font-size:0.7rem;
+    cursor:pointer;
+    transition:0.4s;
+}
+
+.save-btn:hover{
+    transform:translateY(-2px);
+    opacity:0.9;
+}
+
+/* =========================================
+EMPTY STATE
+========================================= */
+
+.empty{
+    margin-top:120px;
+    text-align:center;
+}
+
+.empty h2{
+    font-size:2rem;
+    font-weight:500;
+}
+
+.empty p{
+    margin-top:16px;
+    color:#818181;
+    line-height:1.9;
+    font-size:0.8rem;
+}
+
+/* =========================================
+RESPONSIVE
+========================================= */
+
+@media(max-width:768px){
+
+.section-title{
+    font-size:2.2rem;
+}
+
+.input-title{
+    font-size:2rem;
+}
+
+textarea{
+    min-height:320px;
+    padding:22px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="glow"></div>
+
+<!-- =========================================
+NAVBAR
+========================================= -->
+
+<nav>
+
+<div class="logo">
+SILENT JOURNAL
+</div>
+
+<div class="tag">
+PRIVATE THOUGHTS
+</div>
+
+</nav>
+
+<!-- =========================================
+HOME PAGE
+========================================= -->
+
+<section class="page" id="homePage">
+
+<h1 class="section-title">
+Your Journal Universe
+</h1>
+
+<p class="section-sub">
+Every thought becomes a memory.
+Every memory becomes a story hidden in silence.
+</p>
+
+<div id="journalList" class="journal-grid"></div>
+
+<div class="empty" id="emptyState">
+
+<h2>
+No Journal Yet
+</h2>
+
+<p>
+Start writing your first memory.
+The silence is waiting.
+</p>
+
+</div>
+
+<button class="add-btn" id="addBtn">
++
+</button>
+
+</section>
+
+<!-- =========================================
+EDITOR PAGE
+========================================= -->
+
+<section class="page hidden" id="editorPage">
+
+<div class="editor-container">
+
+<button class="back-btn" id="backBtn">
+← BACK TO JOURNALS
+</button>
+
+<input 
+type="text"
+placeholder="Untitled Memory..."
+class="input-title"
+id="journalTitle"
+/>
+
+<textarea 
+placeholder="Write what the world should never forget..."
+id="journalContent"
+></textarea>
+
+<button class="save-btn" id="saveBtn">
+SAVE JOURNAL
+</button>
+
+</div>
+
+</section>
+
+<script>
+
+/* =========================================
+INDEXED DB
+========================================= */
+
+let db;
+
+const request = indexedDB.open("SilentJournalDB",1);
+
+request.onupgradeneeded = function(event){
+
+    db = event.target.result;
+
+    if(!db.objectStoreNames.contains("journals")){
+
+        const store = db.createObjectStore("journals",{
+            keyPath:"id",
+            autoIncrement:true
+        });
+
+    }
+
+};
+
+request.onsuccess = function(event){
+
+    db = event.target.result;
+
+    loadJournals();
+
+};
+
+/* =========================================
+ELEMENTS
+========================================= */
+
+const homePage = document.getElementById("homePage");
+const editorPage = document.getElementById("editorPage");
+
+const addBtn = document.getElementById("addBtn");
+const backBtn = document.getElementById("backBtn");
+const saveBtn = document.getElementById("saveBtn");
+
+const journalTitle = document.getElementById("journalTitle");
+const journalContent = document.getElementById("journalContent");
+
+const journalList = document.getElementById("journalList");
+const emptyState = document.getElementById("emptyState");
+
+/* =========================================
+PAGE SWITCH
+========================================= */
+
+addBtn.addEventListener("click",()=>{
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+});
+
+backBtn.addEventListener("click",()=>{
+
+    editorPage.classList.add("hidden");
+    homePage.classList.remove("hidden");
+
+});
+
+/* =========================================
+SAVE JOURNAL
+========================================= */
+
+saveBtn.addEventListener("click",()=>{
+
+    const title = journalTitle.value.trim();
+    const content = journalContent.value.trim();
+
+    if(title === "" || content === ""){
+        alert("Please write something.");
+        return;
+    }
+
+    const transaction = db.transaction(["journals"],"readwrite");
+
+    const store = transaction.objectStore("journals");
+
+    const journal = {
+
+        title,
+        content,
+        createdAt:Date.now()
+
+    };
+
+    store.add(journal);
+
+    transaction.oncomplete = ()=>{
+
+        journalTitle.value = "";
+        journalContent.value = "";
+
+        editorPage.classList.add("hidden");
+        homePage.classList.remove("hidden");
+
+        loadJournals();
+
+    };
+
+});
+
+/* =========================================
+LOAD JOURNALS
+========================================= */
+
+function loadJournals(){
+
+    journalList.innerHTML = "";
+
+    const transaction = db.transaction(["journals"],"readonly");
+
+    const store = transaction.objectStore("journals");
+
+    const request = store.getAll();
+
+    request.onsuccess = ()=>{
+
+        let journals = request.result;
+
+        journals.sort((a,b)=>b.createdAt - a.createdAt);
+
+        if(journals.length === 0){
+
+            emptyState.style.display = "block";
+
+        }
+        else{
+
+            emptyState.style.display = "none";
+
+        }
+
+        journals.forEach((journal)=>{
+
+            const card = document.createElement("div");
+
+            card.className = "journal-card";
+
+            const date = new Date(journal.createdAt);
+
+            card.innerHTML = `
+
+            <div class="card-date">
+            ${date.toDateString()}
+            </div>
+
+            <h3>
+            ${journal.title}
+            </h3>
+
+            <p>
+            ${journal.content.substring(0,160)}...
+            </p>
+
+            `;
+
+            journalList.appendChild(card);
+
+        });
+
+    };
+
+}
+
+/* =========================================
+GLOBAL
+========================================= */
+
+let currentJournalId = null;
+
+/* =========================================
+OPEN EXISTING JOURNAL
+========================================= */
+
+function openJournal(journal){
+
+    currentJournalId = journal.id;
+
+    journalTitle.value = journal.title;
+    journalContent.value = journal.content;
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+}
+
+/* =========================================
+UPDATE SAVE BUTTON
+========================================= */
+
+saveBtn.addEventListener("click",()=>{
+
+    const title = journalTitle.value.trim();
+    const content = journalContent.value.trim();
+
+    if(title === "" || content === ""){
+        alert("Please write something.");
+        return;
+    }
+
+    const transaction = db.transaction(["journals"],"readwrite");
+
+    const store = transaction.objectStore("journals");
+
+    /* =========================================
+    UPDATE EXISTING
+    ========================================= */
+
+    if(currentJournalId){
+
+        const updatedJournal = {
+
+            id:currentJournalId,
+            title,
+            content,
+            createdAt:Date.now()
+
+        };
+
+        store.put(updatedJournal);
+
+    }
+
+    /* =========================================
+    CREATE NEW
+    ========================================= */
+
+    else{
+
+        const journal = {
+
+            title,
+            content,
+            createdAt:Date.now()
+
+        };
+
+        store.add(journal);
+
+    }
+
+    transaction.oncomplete = ()=>{
+
+        currentJournalId = null;
+
+        journalTitle.value = "";
+        journalContent.value = "";
+
+        editorPage.classList.add("hidden");
+        homePage.classList.remove("hidden");
+
+        loadJournals();
+
+    };
+
+});
+
+/* =========================================
+RESET NEW JOURNAL
+========================================= */
+
+addBtn.addEventListener("click",()=>{
+
+    currentJournalId = null;
+
+    journalTitle.value = "";
+    journalContent.value = "";
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+});
+
+/* =========================================
+LOAD JOURNALS
+========================================= */
+
+function loadJournals(){
+
+    journalList.innerHTML = "";
+
+    const transaction = db.transaction(["journals"],"readonly");
+
+    const store = transaction.objectStore("journals");
+
+    const request = store.getAll();
+
+    request.onsuccess = ()=>{
+
+        let journals = request.result;
+
+        journals.sort((a,b)=>b.createdAt - a.createdAt);
+
+        if(journals.length === 0){
+
+            emptyState.style.display = "block";
+
+        }
+        else{
+
+            emptyState.style.display = "none";
+
+        }
+
+        journals.forEach((journal)=>{
+
+            const card = document.createElement("div");
+
+            card.className = "journal-card";
+
+            const date = new Date(journal.createdAt);
+
+            card.innerHTML = `
+
+            <div class="card-date">
+            ${date.toDateString()}
+            </div>
+
+            <h3>
+            ${journal.title}
+            </h3>
+
+            <p>
+            ${journal.content.substring(0,160)}...
+            </p>
+
+            `;
+
+            /* =========================================
+            OPEN JOURNAL
+            ========================================= */
+
+            card.addEventListener("click",()=>{
+
+                openJournal(journal);
+
+            });
+
+            /* =========================================
+            LONG PRESS DELETE
+            ========================================= */
+
+            let pressTimer;
+
+            card.addEventListener("mousedown",()=>{
+
+                pressTimer = setTimeout(()=>{
+
+                    const confirmDelete = confirm(
+                        "Delete this journal?"
+                    );
+
+                    if(confirmDelete){
+
+                        deleteJournal(journal.id);
+
+                    }
+
+                },700);
+
+            });
+
+            card.addEventListener("mouseup",()=>{
+
+                clearTimeout(pressTimer);
+
+            });
+
+            card.addEventListener("mouseleave",()=>{
+
+                clearTimeout(pressTimer);
+
+            });
+
+            /* =========================================
+            MOBILE TOUCH SUPPORT
+            ========================================= */
+
+            card.addEventListener("touchstart",()=>{
+
+                pressTimer = setTimeout(()=>{
+
+                    const confirmDelete = confirm(
+                        "Delete this journal?"
+                    );
+
+                    if(confirmDelete){
+
+                        deleteJournal(journal.id);
+
+                    }
+
+                },700);
+
+            });
+
+            card.addEventListener("touchend",()=>{
+
+                clearTimeout(pressTimer);
+
+            });
+
+            journalList.appendChild(card);
+
+        });
+
+    };
+
+}
+
+/* =========================================
+DELETE JOURNAL
+========================================= */
+
+function deleteJournal(id){
+
+    const transaction = db.transaction(["journals"],"readwrite");
+
+    const store = transaction.objectStore("journals");
+
+    store.delete(id);
+
+    transaction.oncomplete = ()=>{
+
+        loadJournals();
+
+    };
+
+}
+
+</script>
+<script>
+
+if("serviceWorker" in navigator){
+
+    window.addEventListener("load",()=>{
+
+        navigator.serviceWorker.register("./sw.js")
+        .then(()=>{
+
+            console.log("Service Worker Registered");
+
+        });
+
+    });
+
+}
+
+</script>
+</body>
+</html>
