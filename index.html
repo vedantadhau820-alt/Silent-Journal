@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Silent Journal</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="manifest" href="./manifest.json">
+
 <meta name="theme-color" content="#050505">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -42,7 +46,8 @@ BACKGROUND
     position:fixed;
     inset:0;
     background:
-    linear-gradient(to bottom,
+    linear-gradient(
+    to bottom,
     rgba(5,5,5,0.82),
     rgba(5,5,5,0.96)),
     url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1974&auto=format&fit=crop');
@@ -57,7 +62,9 @@ BACKGROUND
     width:500px;
     height:500px;
     border-radius:50%;
-    background:radial-gradient(circle,rgba(157,130,84,0.12),transparent 70%);
+    background:radial-gradient(circle,
+    rgba(157,130,84,0.12),
+    transparent 70%);
     top:-150px;
     right:-150px;
     filter:blur(40px);
@@ -78,8 +85,8 @@ nav{
     align-items:center;
     backdrop-filter:blur(10px);
     background:rgba(5,5,5,0.45);
-    z-index:100;
     border-bottom:1px solid rgba(255,255,255,0.04);
+    z-index:100;
 }
 
 .logo{
@@ -162,6 +169,7 @@ JOURNAL LIST
     padding:28px;
     transition:0.4s;
     backdrop-filter:blur(10px);
+    cursor:pointer;
 }
 
 .journal-card:hover{
@@ -302,6 +310,7 @@ textarea{
 }
 
 </style>
+
 </head>
 
 <body>
@@ -340,7 +349,7 @@ Every thought becomes a memory.
 Every memory becomes a story hidden in silence.
 </p>
 
-<div id="journalList" class="journal-grid"></div>
+<div class="journal-grid" id="journalList"></div>
 
 <div class="empty" id="emptyState">
 
@@ -373,14 +382,14 @@ EDITOR PAGE
 ← BACK TO JOURNALS
 </button>
 
-<input 
+<input
 type="text"
 placeholder="Untitled Memory..."
 class="input-title"
 id="journalTitle"
 />
 
-<textarea 
+<textarea
 placeholder="Write what the world should never forget..."
 id="journalContent"
 ></textarea>
@@ -396,7 +405,7 @@ SAVE JOURNAL
 <script>
 
 /* =========================================
-INDEXED DB
+DATABASE
 ========================================= */
 
 let db;
@@ -409,7 +418,7 @@ request.onupgradeneeded = function(event){
 
     if(!db.objectStoreNames.contains("journals")){
 
-        const store = db.createObjectStore("journals",{
+        db.createObjectStore("journals",{
             keyPath:"id",
             autoIncrement:true
         });
@@ -444,15 +453,32 @@ const journalList = document.getElementById("journalList");
 const emptyState = document.getElementById("emptyState");
 
 /* =========================================
-PAGE SWITCH
+GLOBAL
+========================================= */
+
+let currentJournalId = null;
+let currentJournalCreatedAt = null;
+
+/* =========================================
+OPEN NEW JOURNAL
 ========================================= */
 
 addBtn.addEventListener("click",()=>{
+
+    currentJournalId = null;
+    currentJournalCreatedAt = null;
+
+    journalTitle.value = "";
+    journalContent.value = "";
 
     homePage.classList.add("hidden");
     editorPage.classList.remove("hidden");
 
 });
+
+/* =========================================
+BACK BUTTON
+========================================= */
 
 backBtn.addEventListener("click",()=>{
 
@@ -460,6 +486,23 @@ backBtn.addEventListener("click",()=>{
     homePage.classList.remove("hidden");
 
 });
+
+/* =========================================
+OPEN JOURNAL
+========================================= */
+
+function openJournal(journal){
+
+    currentJournalId = journal.id;
+    currentJournalCreatedAt = journal.createdAt;
+
+    journalTitle.value = journal.title;
+    journalContent.value = journal.content;
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+}
 
 /* =========================================
 SAVE JOURNAL
@@ -471,135 +514,10 @@ saveBtn.addEventListener("click",()=>{
     const content = journalContent.value.trim();
 
     if(title === "" || content === ""){
+
         alert("Please write something.");
         return;
-    }
 
-    const transaction = db.transaction(["journals"],"readwrite");
-
-    const store = transaction.objectStore("journals");
-
-    const journal = {
-
-        title,
-        content,
-        createdAt:Date.now()
-
-    };
-
-    store.add(journal);
-
-    transaction.oncomplete = ()=>{
-
-        journalTitle.value = "";
-        journalContent.value = "";
-
-        editorPage.classList.add("hidden");
-        homePage.classList.remove("hidden");
-
-        loadJournals();
-
-    };
-
-});
-
-/* =========================================
-LOAD JOURNALS
-========================================= */
-
-function loadJournals(){
-
-    journalList.innerHTML = "";
-
-    const transaction = db.transaction(["journals"],"readonly");
-
-    const store = transaction.objectStore("journals");
-
-    const request = store.getAll();
-
-    request.onsuccess = ()=>{
-
-        let journals = request.result;
-
-        journals.sort((a,b)=>b.createdAt - a.createdAt);
-
-        if(journals.length === 0){
-
-            emptyState.style.display = "block";
-
-        }
-        else{
-
-            emptyState.style.display = "none";
-
-        }
-
-        journals.forEach((journal)=>{
-
-            const card = document.createElement("div");
-
-            card.className = "journal-card";
-
-            const date = new Date(journal.createdAt);
-
-            card.innerHTML = `
-
-            <div class="card-date">
-            ${date.toDateString()}
-            </div>
-
-            <h3>
-            ${journal.title}
-            </h3>
-
-            <p>
-            ${journal.content.substring(0,160)}...
-            </p>
-
-            `;
-
-            journalList.appendChild(card);
-
-        });
-
-    };
-
-}
-
-/* =========================================
-GLOBAL
-========================================= */
-
-let currentJournalId = null;
-
-/* =========================================
-OPEN EXISTING JOURNAL
-========================================= */
-
-function openJournal(journal){
-
-    currentJournalId = journal.id;
-
-    journalTitle.value = journal.title;
-    journalContent.value = journal.content;
-
-    homePage.classList.add("hidden");
-    editorPage.classList.remove("hidden");
-
-}
-
-/* =========================================
-UPDATE SAVE BUTTON
-========================================= */
-
-saveBtn.addEventListener("click",()=>{
-
-    const title = journalTitle.value.trim();
-    const content = journalContent.value.trim();
-
-    if(title === "" || content === ""){
-        alert("Please write something.");
-        return;
     }
 
     const transaction = db.transaction(["journals"],"readwrite");
@@ -607,7 +525,7 @@ saveBtn.addEventListener("click",()=>{
     const store = transaction.objectStore("journals");
 
     /* =========================================
-    UPDATE EXISTING
+    UPDATE
     ========================================= */
 
     if(currentJournalId){
@@ -617,7 +535,7 @@ saveBtn.addEventListener("click",()=>{
             id:currentJournalId,
             title,
             content,
-            createdAt:Date.now()
+            createdAt:currentJournalCreatedAt
 
         };
 
@@ -626,7 +544,7 @@ saveBtn.addEventListener("click",()=>{
     }
 
     /* =========================================
-    CREATE NEW
+    CREATE
     ========================================= */
 
     else{
@@ -646,6 +564,7 @@ saveBtn.addEventListener("click",()=>{
     transaction.oncomplete = ()=>{
 
         currentJournalId = null;
+        currentJournalCreatedAt = null;
 
         journalTitle.value = "";
         journalContent.value = "";
@@ -656,22 +575,6 @@ saveBtn.addEventListener("click",()=>{
         loadJournals();
 
     };
-
-});
-
-/* =========================================
-RESET NEW JOURNAL
-========================================= */
-
-addBtn.addEventListener("click",()=>{
-
-    currentJournalId = null;
-
-    journalTitle.value = "";
-    journalContent.value = "";
-
-    homePage.classList.add("hidden");
-    editorPage.classList.remove("hidden");
 
 });
 
@@ -691,7 +594,7 @@ function loadJournals(){
 
     request.onsuccess = ()=>{
 
-        let journals = request.result;
+        const journals = request.result;
 
         journals.sort((a,b)=>b.createdAt - a.createdAt);
 
@@ -700,6 +603,7 @@ function loadJournals(){
             emptyState.style.display = "block";
 
         }
+
         else{
 
             emptyState.style.display = "none";
@@ -731,24 +635,19 @@ function loadJournals(){
             `;
 
             /* =========================================
-            OPEN JOURNAL
-            ========================================= */
-
-            card.addEventListener("click",()=>{
-
-                openJournal(journal);
-
-            });
-
-            /* =========================================
-            LONG PRESS DELETE
+            LONG PRESS
             ========================================= */
 
             let pressTimer;
+            let longPressed = false;
 
-            card.addEventListener("mousedown",()=>{
+            function startPress(){
+
+                longPressed = false;
 
                 pressTimer = setTimeout(()=>{
+
+                    longPressed = true;
 
                     const confirmDelete = confirm(
                         "Delete this journal?"
@@ -762,45 +661,37 @@ function loadJournals(){
 
                 },700);
 
-            });
+            }
 
-            card.addEventListener("mouseup",()=>{
-
-                clearTimeout(pressTimer);
-
-            });
-
-            card.addEventListener("mouseleave",()=>{
+            function cancelPress(){
 
                 clearTimeout(pressTimer);
 
-            });
+            }
 
-            /* =========================================
-            MOBILE TOUCH SUPPORT
-            ========================================= */
+            /* Desktop */
 
-            card.addEventListener("touchstart",()=>{
+            card.addEventListener("mousedown",startPress);
 
-                pressTimer = setTimeout(()=>{
+            card.addEventListener("mouseup",cancelPress);
 
-                    const confirmDelete = confirm(
-                        "Delete this journal?"
-                    );
+            card.addEventListener("mouseleave",cancelPress);
 
-                    if(confirmDelete){
+            /* Mobile */
 
-                        deleteJournal(journal.id);
+            card.addEventListener("touchstart",startPress);
 
-                    }
+            card.addEventListener("touchend",cancelPress);
 
-                },700);
+            /* Open Journal */
 
-            });
+            card.addEventListener("click",()=>{
 
-            card.addEventListener("touchend",()=>{
+                if(!longPressed){
 
-                clearTimeout(pressTimer);
+                    openJournal(journal);
+
+                }
 
             });
 
@@ -832,8 +723,9 @@ function deleteJournal(id){
 
 }
 
-</script>
-<script>
+/* =========================================
+SERVICE WORKER
+========================================= */
 
 if("serviceWorker" in navigator){
 
@@ -851,5 +743,6 @@ if("serviceWorker" in navigator){
 }
 
 </script>
+
 </body>
 </html>
