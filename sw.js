@@ -2,7 +2,7 @@
 SILENT JOURNAL SERVICE WORKER
 ========================================= */
 
-const CACHE_NAME = "silent-journal-v1";
+const CACHE_NAME = "silent-journal-v2";
 
 /* =========================================
 FILES TO CACHE
@@ -12,6 +12,7 @@ const urlsToCache = [
 
     "./",
     "./index.html",
+    "./manifest.json",
 
     "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
 
@@ -76,23 +77,29 @@ FETCH
 
 self.addEventListener("fetch",(event)=>{
 
+    /* =========================================
+    ONLY CACHE GET REQUESTS
+    ========================================= */
+
+    if(event.request.method !== "GET") return;
+
     event.respondWith(
 
         caches.match(event.request)
-        .then((response)=>{
+        .then((cachedResponse)=>{
 
             /* =========================================
-            RETURN CACHE
+            RETURN CACHE FIRST
             ========================================= */
 
-            if(response){
+            if(cachedResponse){
 
-                return response;
+                return cachedResponse;
 
             }
 
             /* =========================================
-            FETCH FROM NETWORK
+            FETCH NETWORK
             ========================================= */
 
             return fetch(event.request)
@@ -104,8 +111,7 @@ self.addEventListener("fetch",(event)=>{
 
                 if(
                     !networkResponse ||
-                    networkResponse.status !== 200 ||
-                    networkResponse.type !== "basic"
+                    networkResponse.status !== 200
                 ){
 
                     return networkResponse;
@@ -113,19 +119,42 @@ self.addEventListener("fetch",(event)=>{
                 }
 
                 /* =========================================
-                CACHE NEW REQUEST
+                CLONE RESPONSE
                 ========================================= */
 
                 const responseClone = networkResponse.clone();
 
+                /* =========================================
+                SAVE TO CACHE
+                ========================================= */
+
                 caches.open(CACHE_NAME)
                 .then((cache)=>{
 
-                    cache.put(event.request,responseClone);
+                    cache.put(
+                        event.request,
+                        responseClone
+                    );
 
                 });
 
                 return networkResponse;
+
+            })
+
+            /* =========================================
+            OFFLINE FALLBACK
+            ========================================= */
+
+            .catch(()=>{
+
+                if(
+                    event.request.destination === "document"
+                ){
+
+                    return caches.match("./index.html");
+
+                }
 
             });
 
