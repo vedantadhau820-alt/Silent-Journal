@@ -2,7 +2,7 @@
 SILENT JOURNAL SERVICE WORKER
 ========================================= */
 
-const CACHE_NAME = "silent-journal-v2";
+const CACHE_NAME = "silent-journal-v3";
 
 /* =========================================
 FILES TO CACHE
@@ -14,7 +14,8 @@ const urlsToCache = [
     "./index.html",
     "./manifest.json",
 
-    "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    "./icons/icon.png",
+    "./icons/maskable-icon.png"
 
 ];
 
@@ -83,6 +84,18 @@ self.addEventListener("fetch",(event)=>{
 
     if(event.request.method !== "GET") return;
 
+    /* =========================================
+    SKIP EXTERNAL REQUESTS
+    ========================================= */
+
+    if(
+        !event.request.url.startsWith(
+            self.location.origin
+        )
+    ){
+        return;
+    }
+
     event.respondWith(
 
         caches.match(event.request)
@@ -99,7 +112,7 @@ self.addEventListener("fetch",(event)=>{
             }
 
             /* =========================================
-            FETCH NETWORK
+            FETCH FROM NETWORK
             ========================================= */
 
             return fetch(event.request)
@@ -111,7 +124,8 @@ self.addEventListener("fetch",(event)=>{
 
                 if(
                     !networkResponse ||
-                    networkResponse.status !== 200
+                    networkResponse.status !== 200 ||
+                    networkResponse.type !== "basic"
                 ){
 
                     return networkResponse;
@@ -122,7 +136,8 @@ self.addEventListener("fetch",(event)=>{
                 CLONE RESPONSE
                 ========================================= */
 
-                const responseClone = networkResponse.clone();
+                const responseClone =
+                networkResponse.clone();
 
                 /* =========================================
                 SAVE TO CACHE
@@ -149,10 +164,13 @@ self.addEventListener("fetch",(event)=>{
             .catch(()=>{
 
                 if(
-                    event.request.destination === "document"
+                    event.request.destination ===
+                    "document"
                 ){
 
-                    return caches.match("./index.html");
+                    return caches.match(
+                        "./index.html"
+                    );
 
                 }
 
