@@ -9,14 +9,10 @@ FILES TO CACHE
 ========================================= */
 
 const urlsToCache = [
-
     "./",
     "./index.html",
     "./manifest.json",
-
-    "./icons/icon.png",
-    "./icons/maskable-icon.png"
-
+    "./icon.png"
 ];
 
 /* =========================================
