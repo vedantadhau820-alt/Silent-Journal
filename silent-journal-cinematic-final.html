@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Silent Journal</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#050505">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:#050505;
+color:#f5f5f5;
+overflow-x:hidden;
+}
+
+.bg{
+position:fixed;
+inset:0;
+background:
+linear-gradient(to bottom,
+rgba(5,5,5,0.82),
+rgba(5,5,5,0.96)),
+url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1974&auto=format&fit=crop');
+background-size:cover;
+background-position:center;
+z-index:-2;
+}
+
+.glow{
+position:fixed;
+width:500px;
+height:500px;
+border-radius:50%;
+background:radial-gradient(circle,rgba(157,130,84,0.12),transparent 70%);
+top:-150px;
+right:-150px;
+filter:blur(40px);
+z-index:-1;
+}
+
+nav{
+position:fixed;
+top:0;
+width:100%;
+padding:24px 7%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+backdrop-filter:blur(10px);
+background:rgba(5,5,5,0.45);
+z-index:100;
+border-bottom:1px solid rgba(255,255,255,0.04);
+}
+
+.logo{
+letter-spacing:4px;
+font-size:0.9rem;
+font-weight:500;
+}
+
+.tag{
+color:#8c8c8c;
+font-size:0.65rem;
+letter-spacing:2px;
+}
+
+.page{
+min-height:100vh;
+padding:120px 7% 60px;
+}
+
+.hidden{
+display:none;
+}
+
+.section-title{
+font-size:3rem;
+font-weight:500;
+line-height:1;
+}
+
+.section-sub{
+margin-top:18px;
+color:#8f8f8f;
+max-width:500px;
+line-height:1.9;
+font-size:0.8rem;
+}
+
+.top-actions{
+margin-top:40px;
+display:flex;
+gap:14px;
+flex-wrap:wrap;
+}
+
+.action-btn{
+padding:12px 24px;
+border:none;
+background:#f5f5f5;
+color:black;
+font-size:0.7rem;
+letter-spacing:2px;
+cursor:pointer;
+transition:0.4s;
+}
+
+.action-btn:hover{
+transform:translateY(-2px);
+}
+
+.back-all{
+display:none;
+margin-top:40px;
+color:#8d8d8d;
+font-size:0.72rem;
+letter-spacing:3px;
+cursor:pointer;
+width:fit-content;
+transition:0.4s;
+}
+
+.back-all:hover{
+color:#ffffff;
+}
+
+.current-folder{
+
+margin-top:18px;
+
+display:inline-flex;
+
+align-items:center;
+
+padding:12px 20px;
+
+border:
+1px solid rgba(157,130,84,0.18);
+
+background:
+rgba(15,15,15,0.55);
+
+backdrop-filter:blur(10px);
+
+color:#9d8254;
+
+letter-spacing:3px;
+
+font-size:0.7rem;
+
+width:fit-content;
+
+}
+
+.folder-grid{
+margin-top:40px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:18px;
+}
+
+.folder-card{
+background:rgba(15,15,15,0.75);
+border:1px solid rgba(255,255,255,0.05);
+padding:26px;
+cursor:pointer;
+transition:0.4s;
+backdrop-filter:blur(10px);
+}
+
+.folder-card:hover{
+transform:translateY(-4px);
+border-color:rgba(157,130,84,0.25);
+}
+
+.folder-label{
+color:#9d8254;
+font-size:0.65rem;
+letter-spacing:2px;
+margin-bottom:12px;
+}
+
+.folder-card h3{
+font-size:1.2rem;
+font-weight:500;
+}
+
+.journal-grid{
+margin-top:50px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:22px;
+}
+
+.journal-card{
+background:rgba(15,15,15,0.75);
+border:1px solid rgba(255,255,255,0.05);
+padding:28px;
+transition:0.4s;
+backdrop-filter:blur(10px);
+cursor:pointer;
+}
+
+.journal-card:hover{
+transform:translateY(-5px);
+border-color:rgba(157,130,84,0.3);
+}
+
+.card-date{
+color:#9d8254;
+font-size:0.65rem;
+letter-spacing:2px;
+margin-bottom:14px;
+}
+
+.journal-card h3{
+font-size:1.3rem;
+font-weight:500;
+margin-bottom:14px;
+}
+
+.journal-card p{
+color:#929292;
+line-height:1.9;
+font-size:0.8rem;
+}
+
+.editor-container{
+max-width:900px;
+margin:auto;
+}
+
+.back-btn{
+background:none;
+border:none;
+color:#9d8254;
+letter-spacing:2px;
+cursor:pointer;
+margin-bottom:40px;
+font-size:0.7rem;
+}
+
+.input-title{
+width:100%;
+background:none;
+border:none;
+outline:none;
+color:white;
+font-size:3rem;
+font-family:'Poppins',sans-serif;
+font-weight:500;
+margin-bottom:30px;
+}
+
+.input-title::placeholder{
+color:#5f5f5f;
+}
+
+.counter-bar{
+display:flex;
+gap:30px;
+margin-bottom:18px;
+color:#8d8d8d;
+font-size:0.68rem;
+letter-spacing:2px;
+}
+
+.folder-select{
+width:100%;
+margin-bottom:20px;
+background:#0d0d0d;
+border:1px solid rgba(255,255,255,0.06);
+padding:16px;
+color:#d5d5d5;
+outline:none;
+font-family:Poppins;
+}
+
+textarea{
+width:100%;
+min-height:420px;
+resize:none;
+background:rgba(10,10,10,0.7);
+border:1px solid rgba(255,255,255,0.06);
+padding:30px;
+color:#d5d5d5;
+font-family:'Poppins',sans-serif;
+line-height:2;
+font-size:0.9rem;
+outline:none;
+backdrop-filter:blur(10px);
+}
+
+textarea::placeholder{
+color:#606060;
+}
+
+.save-btn{
+margin-top:30px;
+padding:14px 34px;
+border:none;
+background:#f5f5f5;
+color:black;
+letter-spacing:2px;
+font-size:0.7rem;
+cursor:pointer;
+transition:0.4s;
+}
+
+.save-btn:hover{
+transform:translateY(-2px);
+opacity:0.9;
+}
+
+.empty{
+margin-top:120px;
+text-align:center;
+}
+
+.empty h2{
+font-size:2rem;
+font-weight:500;
+}
+
+.empty p{
+margin-top:16px;
+color:#818181;
+line-height:1.9;
+font-size:0.8rem;
+}
+
+@media(max-width:768px){
+
+.section-title{
+font-size:2.2rem;
+}
+
+.input-title{
+font-size:2rem;
+}
+
+textarea{
+min-height:320px;
+padding:22px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="glow"></div>
+
+<nav>
+
+<div class="logo">
+SILENT JOURNAL
+</div>
+
+<div class="tag">
+PRIVATE THOUGHTS
+</div>
+
+</nav>
+
+<section class="page" id="homePage">
+
+<h1 class="section-title">
+Your Journal Universe
+</h1>
+
+<p class="section-sub">
+Every thought becomes a memory.
+Every memory becomes a story hidden in silence.
+</p>
+
+<div class="top-actions">
+
+<button id="newFolderBtn" class="action-btn">
+NEW FOLDER
+</button>
+
+<button id="newJournalBtn" class="action-btn">
+NEW JOURNAL
+</button>
+
+</div>
+
+<div id="allJournalBtn" class="back-all">
+← BACK TO ALL JOURNALS
+</div>
+
+<div id="currentFolderName"
+class="current-folder"
+style="display:none;">
+</div>
+
+<div id="folderList" class="folder-grid"></div>
+
+<div id="journalList" class="journal-grid"></div>
+
+<div class="empty" id="emptyState">
+
+<h2>
+No Journal Yet
+</h2>
+
+<p>
+Start writing your first memory.
+The silence is waiting.
+</p>
+
+</div>
+
+</section>
+
+<section class="page hidden" id="editorPage">
+
+<div class="editor-container">
+
+<button class="back-btn" id="backBtn">
+← BACK TO JOURNALS
+</button>
+
+<input
+type="text"
+placeholder="Untitled Memory..."
+class="input-title"
+id="journalTitle"
+/>
+
+<div class="counter-bar">
+
+<div>
+WORDS :
+<span id="wordCount">
+0
+</span>
+</div>
+
+<div>
+CHARACTERS :
+<span id="charCount">
+0
+</span>
+</div>
+
+</div>
+
+<select id="folderSelect" class="folder-select">
+
+<option value="">
+NO FOLDER
+</option>
+
+</select>
+
+<textarea
+placeholder="Write what the world should never forget..."
+id="journalContent"
+></textarea>
+
+<button class="save-btn" id="saveBtn">
+SAVE JOURNAL
+</button>
+
+</div>
+
+</section>
+
+<script>
+
+let db;
+
+const request = indexedDB.open("SilentJournalDB",3);
+
+request.onupgradeneeded = function(event){
+
+    db = event.target.result;
+
+    if(!db.objectStoreNames.contains("folders")){
+
+        db.createObjectStore("folders",{
+            keyPath:"id",
+            autoIncrement:true
+        });
+
+    }
+
+    let journalStore;
+
+    if(!db.objectStoreNames.contains("journals")){
+
+        journalStore = db.createObjectStore("journals",{
+            keyPath:"id",
+            autoIncrement:true
+        });
+
+    }
+    else{
+
+        journalStore =
+        event.target.transaction
+        .objectStore("journals");
+
+    }
+
+    if(!journalStore.indexNames.contains("folderId")){
+
+        journalStore.createIndex(
+            "folderId",
+            "folderId",
+            { unique:false }
+        );
+
+    }
+
+};
+
+request.onsuccess = function(event){
+
+    db = event.target.result;
+
+    loadFolders();
+    loadFolderOptions();
+    loadJournals();
+
+};
+
+const homePage =
+document.getElementById("homePage");
+
+const editorPage =
+document.getElementById("editorPage");
+
+const newFolderBtn =
+document.getElementById("newFolderBtn");
+
+const newJournalBtn =
+document.getElementById("newJournalBtn");
+
+const allJournalBtn =
+document.getElementById("allJournalBtn");
+
+const currentFolderName =
+document.getElementById("currentFolderName");
+
+const backBtn =
+document.getElementById("backBtn");
+
+const saveBtn =
+document.getElementById("saveBtn");
+
+const folderList =
+document.getElementById("folderList");
+
+const journalList =
+document.getElementById("journalList");
+
+const emptyState =
+document.getElementById("emptyState");
+
+const journalTitle =
+document.getElementById("journalTitle");
+
+const journalContent =
+document.getElementById("journalContent");
+
+const folderSelect =
+document.getElementById("folderSelect");
+
+const wordCount =
+document.getElementById("wordCount");
+
+const charCount =
+document.getElementById("charCount");
+
+let currentJournalId = null;
+let currentFolderId = null;
+
+journalContent.addEventListener(
+"input",
+updateCounter
+);
+
+function updateCounter(){
+
+    const text = journalContent.value;
+
+    const words = text
+    .trim()
+    .split(/\s+/)
+    .filter(
+        word => word !== ""
+    ).length;
+
+    wordCount.innerText = words;
+
+    charCount.innerText = text.length;
+
+}
+
+newJournalBtn.addEventListener(
+"click",
+()=>{
+
+    currentJournalId = null;
+
+    journalTitle.value = "";
+    journalContent.value = "";
+
+    folderSelect.value = "";
+
+    updateCounter();
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+});
+
+backBtn.addEventListener(
+"click",
+()=>{
+
+    editorPage.classList.add("hidden");
+    homePage.classList.remove("hidden");
+
+});
+
+allJournalBtn.addEventListener(
+"click",
+()=>{
+
+    currentFolderId = null;
+
+/* =========================================
+SHOW FOLDERS AGAIN
+========================================= */
+
+    folderList.style.display =
+    "grid";
+
+/* =========================================
+HIDE FOLDER NAV
+========================================= */
+
+    currentFolderName.style.display =
+    "none";
+
+    allJournalBtn.style.display =
+    "none";
+
+/* =========================================
+LOAD HOME JOURNALS
+========================================= */
+
+    loadJournals();
+
+});
+
+newFolderBtn.addEventListener(
+"click",
+()=>{
+
+    const folderName =
+    prompt("Folder Name");
+
+    if(!folderName) return;
+
+    const transaction =
+    db.transaction(
+        ["folders"],
+        "readwrite"
+    );
+
+    const store =
+    transaction.objectStore("folders");
+
+    store.add({
+
+        name:folderName,
+        createdAt:Date.now()
+
+    });
+
+    transaction.oncomplete = ()=>{
+
+        loadFolders();
+        loadFolderOptions();
+
+    };
+
+});
+
+saveBtn.addEventListener(
+"click",
+()=>{
+
+    const title =
+    journalTitle.value.trim();
+
+    const content =
+    journalContent.value.trim();
+
+    if(title === "" || content === ""){
+
+        alert(
+        "Please write something."
+        );
+
+        return;
+
+    }
+
+    const transaction =
+    db.transaction(
+        ["journals"],
+        "readwrite"
+    );
+
+    const store =
+    transaction.objectStore("journals");
+
+    const folderId =
+    folderSelect.value
+    ? Number(folderSelect.value)
+    : null;
+
+    if(currentJournalId){
+
+        store.put({
+
+            id:currentJournalId,
+            title,
+            content,
+            folderId,
+            createdAt:Date.now()
+
+        });
+
+    }
+    else{
+
+        store.add({
+
+            title,
+            content,
+            folderId,
+            createdAt:Date.now()
+
+        });
+
+    }
+
+    transaction.oncomplete = ()=>{
+
+        currentJournalId = null;
+
+        journalTitle.value = "";
+        journalContent.value = "";
+
+        folderSelect.value = "";
+
+        updateCounter();
+
+        editorPage.classList.add("hidden");
+        homePage.classList.remove("hidden");
+
+        loadJournals(currentFolderId);
+
+    };
+
+});
+
+function openJournal(journal){
+
+    currentJournalId =
+    journal.id;
+
+    journalTitle.value =
+    journal.title;
+
+    journalContent.value =
+    journal.content;
+
+    folderSelect.value =
+    journal.folderId || "";
+
+    updateCounter();
+
+    homePage.classList.add("hidden");
+    editorPage.classList.remove("hidden");
+
+}
+
+function loadFolderOptions(){
+
+    folderSelect.innerHTML = `
+
+    <option value="">
+    NO FOLDER
+    </option>
+
+    `;
+
+    const transaction =
+    db.transaction(
+        ["folders"],
+        "readonly"
+    );
+
+    const store =
+    transaction.objectStore("folders");
+
+    const request =
+    store.getAll();
+
+    request.onsuccess = ()=>{
+
+        const folders =
+        request.result;
+
+        folders.forEach((folder)=>{
+
+            const option =
+            document.createElement(
+            "option"
+            );
+
+            option.value = folder.id;
+
+            option.innerText =
+            folder.name;
+
+            folderSelect
+            .appendChild(option);
+
+        });
+
+    };
+
+}
+
+function loadFolders(){
+
+    folderList.innerHTML = "";
+
+    const transaction =
+    db.transaction(
+        ["folders"],
+        "readonly"
+    );
+
+    const store =
+    transaction.objectStore("folders");
+
+    const request =
+    store.getAll();
+
+    request.onsuccess = ()=>{
+
+        const folders =
+        request.result;
+
+        folders.forEach((folder)=>{
+
+            const card =
+            document.createElement("div");
+
+            card.className =
+            "folder-card";
+
+            card.innerHTML = `
+
+            <div class="folder-label">
+            FOLDER
+            </div>
+
+            <h3>
+            ${folder.name}
+            </h3>
+
+            `;
+
+            card.addEventListener(
+            "click",
+            ()=>{
+
+                currentFolderId =
+                folder.id;
+
+/* =========================================
+HIDE FOLDERS
+========================================= */
+
+                folderList.style.display =
+                "none";
+
+/* =========================================
+SHOW NAVIGATION
+========================================= */
+
+                currentFolderName
+                .style.display =
+                "inline-flex";
+
+                allJournalBtn
+                .style.display =
+                "block";
+
+                currentFolderName
+                .innerText =
+
+                "FOLDER : " +
+
+                folder.name;
+
+/* =========================================
+LOAD JOURNALS
+========================================= */
+
+                loadJournals(
+                folder.id
+                );
+
+            });
+
+            folderList
+            .appendChild(card);
+
+        });
+
+    };
+
+}
+
+function loadJournals(
+folderId = null
+){
+
+    journalList.innerHTML = "";
+
+    const transaction =
+    db.transaction(
+        ["journals"],
+        "readonly"
+    );
+
+    const store =
+    transaction.objectStore(
+    "journals"
+    );
+
+    const request =
+    store.getAll();
+
+    request.onsuccess = ()=>{
+
+        let journals =
+        request.result;
+
+        /* =========================================
+        HOME PAGE
+        ONLY SHOW JOURNALS
+        WITHOUT FOLDERS
+        ========================================= */
+
+        if(folderId === null){
+
+            journals = journals.filter(
+
+                journal =>
+
+                journal.folderId === null ||
+                journal.folderId === undefined
+
+            );
+
+        }
+
+        /* =========================================
+        FOLDER VIEW
+        ========================================= */
+
+        else{
+
+            journals = journals.filter(
+
+                journal =>
+
+                journal.folderId === folderId
+
+            );
+
+        }
+
+        journals.sort(
+            (a,b)=>
+
+            b.createdAt -
+            a.createdAt
+        );
+
+        if(journals.length === 0){
+
+            emptyState.style.display =
+            "block";
+
+        }
+        else{
+
+            emptyState.style.display =
+            "none";
+
+        }
+
+        journals.forEach((journal)=>{
+
+            const card =
+            document.createElement("div");
+
+            card.className =
+            "journal-card";
+
+            const date =
+            new Date(
+            journal.createdAt
+            );
+
+            card.innerHTML = `
+
+            <div class="card-date">
+            ${date.toDateString()}
+            </div>
+
+            <h3>
+            ${journal.title}
+            </h3>
+
+            <p>
+            ${journal.content
+            .substring(0,160)}...
+            </p>
+
+            `;
+
+            card.addEventListener(
+            "click",
+            ()=>{
+
+                openJournal(
+                journal
+                );
+
+            });
+
+            let pressTimer;
+
+            card.addEventListener(
+            "mousedown",
+            ()=>{
+
+                pressTimer =
+                setTimeout(()=>{
+
+                    const confirmDelete =
+                    confirm(
+                    "Delete this journal?"
+                    );
+
+                    if(confirmDelete){
+
+                        deleteJournal(
+                        journal.id
+                        );
+
+                    }
+
+                },700);
+
+            });
+
+            card.addEventListener(
+            "mouseup",
+            ()=>{
+
+                clearTimeout(
+                pressTimer
+                );
+
+            });
+
+            card.addEventListener(
+            "mouseleave",
+            ()=>{
+
+                clearTimeout(
+                pressTimer
+                );
+
+            });
+
+            card.addEventListener(
+            "touchstart",
+            ()=>{
+
+                pressTimer =
+                setTimeout(()=>{
+
+                    const confirmDelete =
+                    confirm(
+                    "Delete this journal?"
+                    );
+
+                    if(confirmDelete){
+
+                        deleteJournal(
+                        journal.id
+                        );
+
+                    }
+
+                },700);
+
+            });
+
+            card.addEventListener(
+            "touchend",
+            ()=>{
+
+                clearTimeout(
+                pressTimer
+                );
+
+            });
+
+            journalList
+            .appendChild(card);
+
+        });
+
+    };
+
+}
+
+function deleteJournal(id){
+
+    const transaction =
+    db.transaction(
+        ["journals"],
+        "readwrite"
+    );
+
+    const store =
+    transaction.objectStore(
+    "journals"
+    );
+
+    store.delete(id);
+
+    transaction.oncomplete = ()=>{
+
+        loadJournals(
+        currentFolderId
+        );
+
+    };
+
+}
+
+if(
+"serviceWorker"
+in navigator
+){
+
+    window.addEventListener(
+    "load",
+    ()=>{
+
+        navigator
+        .serviceWorker
+        .register("./sw.js")
+
+        .then(()=>{
+
+            console.log(
+            "Service Worker Registered"
+            );
+
+        });
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
