@@ -718,21 +718,20 @@ saveBtn.addEventListener(
 "click",
 ()=>{
 
-    const title =
-    journalTitle.value.trim();
+    let title = journalTitle.value.trim();
+const content = journalContent.value.trim();
 
-    const content =
-    journalContent.value.trim();
+if(content === ""){
 
-    if(title === "" || content === ""){
+    alert("Please write something.");
 
-        alert(
-        "Please write something."
-        );
+    return;
 
-        return;
+}
 
-    }
+if(title === ""){
+    title = "Untitled Memory";
+}
 
     const transaction =
     db.transaction(
